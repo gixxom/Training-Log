@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>운동 기록장</title>
 
-<!-- 아이폰 홈 화면 전용 앱 아이콘 (용기의 문장) -->
+  <!-- 홈 화면 전용 앱 아이콘 -->
   <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
   <link rel="icon" type="image/png" href="icon.png">
   <meta name="apple-mobile-web-app-title" content="운동 기록장">
@@ -46,7 +46,7 @@
     .workout-item { background: #faf5ff; border: 1px solid #e9d8fd; padding: 10px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .workout-item:last-child { margin-bottom: 0; }
     .workout-info { display: flex; flex-direction: column; gap: 2px; }
-    .workout-title { font-weight: 700; font-size: 0.9rem; color: #2d3748; }
+    .workout-title { font-weight: 700; font-size: 0.95rem; color: #2d3748; }
     .workout-detail { font-size: 0.85rem; color: #6b46c1; font-weight: 600; }
     
     .btn-group { display: flex; gap: 6px; align-items: center; }
@@ -149,7 +149,16 @@
   let currentRecords = [];
   let currentDate = new Date();
 
-  dateInput.valueAsDate = new Date();
+  // 오늘 날짜 기본 세팅 (YYYY-MM-DD 형식)
+  function getTodayString() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  dateInput.value = getTodayString();
 
   function saveFormDraft() {
     const draft = {
@@ -221,6 +230,7 @@
     }
   });
 
+  // 날짜 문자열 정제 (시차 오류 방지)
   function cleanDateString(rawDate) {
     if (!rawDate) return '';
     let str = rawDate.toString();
@@ -285,10 +295,13 @@
 
       let itemsHtml = '';
       groupItems.forEach(item => {
+        // 운동 종류(type)가 없을 경우 처리
+        const workoutName = item.type || '운동 이름 없음';
+        
         itemsHtml += `
           <div class="workout-item">
             <div class="workout-info">
-              <span class="workout-title">${item.type}</span>
+              <span class="workout-title">${workoutName}</span>
               <span class="workout-detail">${item.detail}</span>
             </div>
             <div class="btn-group">
@@ -336,8 +349,8 @@
 
     editRowIndexInput.value = rowIndex;
     dateInput.value = cleanDateString(item.date);
-    workoutTypeSelect.value = item.type;
-    detailInput.value = item.detail;
+    workoutTypeSelect.value = item.type || '';
+    detailInput.value = item.detail || '';
 
     workoutTypeSelect.dispatchEvent(new Event('change'));
     saveFormDraft();
@@ -370,15 +383,21 @@
     const detail = detailInput.value;
     const rowIndex = editRowIndexInput.value;
 
+    // 🔥 URL 주소 전송 오타 수정 (&type= 중복 제거)
     let sendUrl = isEdit 
       ? `${GAS_URL}?action=edit&rowIndex=${rowIndex}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`
-      : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
+      : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
 
     try {
       await fetch(sendUrl, { method: 'GET', mode: 'no-cors' });
       
       resetFormMode();
-      saveFormDraft();
+      
+      // 작성 성공 시 저장용 임시 데이터 지우고 오늘 날짜 재설정
+      localStorage.removeItem('workout_form_draft');
+      dateInput.value = getTodayString();
+      workoutTypeSelect.value = '';
+      detailInput.value = '';
       
       setTimeout(loadRecords, 1200);
     } catch (error) {
