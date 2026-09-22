@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>운동 기록장</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
+    body { background-color: #f4f6f8; color: #333; padding: 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+    .header-title { text-align: center; margin-bottom: 16px; color: #1a252c; }
+    .header-title h1 { font-size: 1.4rem; font-weight: 700; }
+    .app-layout { display: flex; flex-direction: column; gap: 16px; max-width: 480px; margin: 0 auto; }
+    .card { background: #ffffff; padding: 18px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .card h2 { font-size: 1.1rem; color: #2c3e50; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid #edf2f7; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
+    input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 1rem; background-color: #fff; -webkit-appearance: none; }
+    input:focus, select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74,144,226,0.2); }
+    button { width: 100%; height: 50px; background-color: #4a90e2; color: white; border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
+    button:disabled { background-color: #a0aec0; cursor: not-allowed; }
+    .btn-cancel { background-color: #e53e3e; margin-top: 8px; }
+
+    /* 월 이동 컨트롤 */
+    .month-picker-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #edf2f7; padding: 8px 12px; border-radius: 8px; }
+    .month-picker-container button { width: auto; height: 32px; padding: 0 10px; font-size: 0.85rem; margin: 0; background-color: #718096; }
+    .month-display { font-size: 1rem; font-weight: 700; color: #2d3748; }
+
+    /* 날짜별 아코디언 그룹 */
+    .record-list-container { max-height: 480px; overflow-y: auto; padding-right: 2px; }
+    .date-group { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #fff; }
+    .date-header { background: #f8fafc; padding: 12px 14px; font-weight: 700; font-size: 0.95rem; color: #2b6cb0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; }
+    .date-group.open .date-header { border-bottom-color: #e2e8f0; background: #ebf8ff; }
+    .badge { background: #3182ce; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+    
+    .date-body { display: none; padding: 10px; background: #fff; }
+    .date-group.open .date-body { display: block; }
+    
+    .workout-item { background: #faf5ff; border: 1px solid #e9d8fd; padding: 10px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .workout-item:last-child { margin-bottom: 0; }
+    .workout-info { display: flex; flex-direction: column; gap: 2px; }
+    .workout-title { font-weight: 700; font-size: 0.9rem; color: #2d3748; }
+    .workout-detail { font-size: 0.85rem; color: #6b46c1; font-weight: 600; }
+    
+    .btn-group { display: flex; gap: 6px; align-items: center; }
+    .btn-sm { width: auto; height: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; margin-top: 0; }
+    .btn-edit { background-color: #ed8936; }
+    .btn-del { background-color: #e53e3e; }
+    .status-msg { text-align: center; color: #a0aec0; font-size: 0.85rem; padding: 24px 0; }
+  </style>
+</head>
+<body>
+
+<div class="header-title">
+  <h1>🏋️‍♂️ 오늘의 운동 기록장</h1>
+</div>
+
+<div class="app-layout">
+  <!-- 기록 작성 카드 -->
+  <div class="card">
+    <h2 id="formTitle">✍️ 기록 작성하기</h2>
+    <form id="workoutForm">
+      <input type="hidden" id="editRowIndex" value="">
+      <div class="form-group">
+        <label for="date">날짜</label>
+        <input type="date" id="date" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="workoutType">운동 종류</label>
+        <select id="workoutType" required>
+          <option value="" disabled selected>운동을 선택하세요</option>
+          <option value="덤벨 루마니안 데드리프트" data-category="dumbbell">덤벨 루마니안 데드리프트</option>
+          <option value="덤벨 벤치프레스" data-category="dumbbell">덤벨 벤치프레스</option>
+          <option value="덤벨숄더프레스" data-category="dumbbell">덤벨숄더프레스</option>
+          <option value="덤벨컬" data-category="dumbbell">덤벨컬</option>
+          <option value="렛풀다운" data-category="machine">렛풀다운</option>
+          <option value="레그 프레스" data-category="machine">레그 프레스</option>
+          <option value="바벨로우" data-category="barbell">바벨로우</option>
+          <option value="벤트오버 레터럴 레이즈" data-category="dumbbell">벤트오버 레터럴 레이즈</option>
+          <option value="벤치프레스" data-category="barbell">벤치프레스</option>
+          <option value="사이드 레터럴 레이즈(사레레)" data-category="dumbbell">사이드 레터럴 레이즈(사레레)</option>
+          <option value="사이클" data-category="cardio">사이클</option>
+          <option value="스미스 스쿼트" data-category="machine">스미스 스쿼트</option>
+          <option value="스미스 OHP" data-category="machine">스미스 OHP</option>
+          <option value="스미스 인클라인 벤치프레스" data-category="machine">스미스 인클라인 벤치프레스</option>
+          <option value="시티드 니업" data-category="bodyweight">시티드 니업</option>
+          <option value="오버헤드 익스텐션" data-category="dumbbell">오버헤드 익스텐션</option>
+          <option value="원 암 덤벨로우" data-category="dumbbell">원 암 덤벨로우</option>
+          <option value="인클라인 덤벨 벤치프레스" data-category="dumbbell">인클라인 덤벨 벤치프레스</option>
+          <option value="케이블 암풀다운" data-category="machine">케이블 암풀다운</option>
+          <option value="케이블 푸쉬다운" data-category="machine">케이블 푸쉬다운</option>
+          <option value="턱걸이" data-category="bodyweight">턱걸이</option>
+          <option value="해머컬" data-category="dumbbell">해머컬</option>
+          <option value="행잉레그레이즈" data-category="bodyweight">행잉레그레이즈</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="detail" id="detailLabel">운동량 (세트/세부사항)</label>
+        <input type="text" id="detail" placeholder="운동을 먼저 선택해주세요" required>
+      </div>
+      <button type="submit" id="submitBtn">기록 추가하기</button>
+      <button type="button" id="cancelBtn" class="btn-cancel" style="display: none;">수정 취소</button>
+    </form>
+  </div>
+
+  <!-- 월별 목록 카드 -->
+  <div class="card">
+    <h2>📋 월별 운동 일지 목록</h2>
+    
+    <div class="month-picker-container">
+      <button type="button" id="prevMonthBtn">◀ 이전달</button>
+      <span class="month-display" id="monthDisplay"></span>
+      <button type="button" id="nextMonthBtn">다음달 ▶</button>
+    </div>
+
+    <div class="record-list-container" id="workoutList">
+      <p class="status-msg">구글 시트에서 데이터를 불러오는 중...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbyTvkE9a03gHs5HRkTQQ1l3ZSndeMOfPMP5HjFuUXasJUmxox2V_xWIsBLzBtCOzD3A/exec';
+
+  const form = document.getElementById('workoutForm');
+  const workoutList = document.getElementById('workoutList');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const dateInput = document.getElementById('date');
+  const workoutTypeSelect = document.getElementById('workoutType');
+  const detailInput = document.getElementById('detail');
+  const detailLabel = document.getElementById('detailLabel');
+  const formTitle = document.getElementById('formTitle');
+  const editRowIndexInput = document.getElementById('editRowIndex');
+
+  const monthDisplay = document.getElementById('monthDisplay');
+  const prevMonthBtn = document.getElementById('prevMonthBtn');
+  const nextMonthBtn = document.getElementById('nextMonthBtn');
+
+  let currentRecords = [];
+  let currentDate = new Date();
+
+  // 기본 날짜 설정
+  dateInput.valueAsDate = new Date();
+
+  // --- 입력값 브라우저 저장소(localStorage) 자동 유지 기능 ---
+  function saveFormDraft() {
+    const draft = {
+      date: dateInput.value,
+      type: workoutTypeSelect.value,
+      detail: detailInput.value
+    };
+    localStorage.setItem('workout_form_draft', JSON.stringify(draft));
+  }
+
+  function loadFormDraft() {
+    const saved = localStorage.getItem('workout_form_draft');
+    if (saved) {
+      try {
+        const draft = JSON.parse(saved);
+        if (draft.date) dateInput.value = draft.date;
+        if (draft.type) {
+          workoutTypeSelect.value = draft.type;
+          workoutTypeSelect.dispatchEvent(new Event('change'));
+        }
+        if (draft.detail) detailInput.value = draft.detail;
+      } catch (e) {
+        console.error('Draft load error:', e);
+      }
+    }
+  }
+
+  dateInput.addEventListener('input', saveFormDraft);
+  workoutTypeSelect.addEventListener('change', saveFormDraft);
+  detailInput.addEventListener('input', saveFormDraft);
+  // ----------------------------------------------------
+
+  function updateMonthDisplay() {
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    monthDisplay.textContent = `${year}년 ${month}월`;
+  }
+
+  prevMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateMonthDisplay();
+    renderRecords();
+  });
+
+  nextMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateMonthDisplay();
+    renderRecords();
+  });
+
+  workoutTypeSelect.addEventListener('change', (e) => {
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const category = selectedOption ? selectedOption.getAttribute('data-category') : null;
+
+    if (category === 'dumbbell') {
+      detailLabel.textContent = '운동량 (한쪽 덤벨 무게 기준)';
+      detailInput.placeholder = '예: 12kg 10회 3세트';
+    } else if (category === 'barbell') {
+      detailLabel.textContent = '운동량 (양쪽 원판 무게 기준, 봉 제외)';
+      detailInput.placeholder = '예: 40kg(원판합) 8회 4세트';
+    } else if (category === 'machine') {
+      detailLabel.textContent = '운동량 (머신 무게/핀 수치 기준)';
+      detailInput.placeholder = '예: 45kg(or 7번 핀) 12회 3세트';
+    } else if (category === 'cardio') {
+      detailLabel.textContent = '운동량 (강도/거리)';
+      detailInput.placeholder = '예: 강도 5 / 10km';
+    } else if (category === 'bodyweight') {
+      detailLabel.textContent = '운동량 (횟수/세트)';
+      detailInput.placeholder = '예: 20회 4세트';
+    }
+  });
+
+  // 날짜 보정 로직 (UTC 타임존 오차 보정)
+  function cleanDateString(rawDate) {
+    if (!rawDate) return '';
+    let str = rawDate.toString();
+    
+    if (str.includes('T')) {
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+      str = str.split('T')[0];
+    }
+    return str.substring(0, 10);
+  }
+
+  async function loadRecords() {
+    try {
+      if (currentRecords.length === 0) {
+        workoutList.innerHTML = '<p class="status-msg">구글 시트에서 데이터를 불러오는 중...</p>';
+      }
+      const response = await fetch(GAS_URL);
+      currentRecords = await response.json();
+      renderRecords();
+    } catch (error) {
+      console.error('Error:', error);
+      if (currentRecords.length === 0) {
+        workoutList.innerHTML = '<p class="status-msg" style="color: red;">데이터를 불러오는 데 실패했습니다.</p>';
+      }
+    }
+  }
+
+  function renderRecords() {
+    workoutList.innerHTML = '';
+
+    const currentYearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+
+    const filteredRecords = currentRecords.filter(item => {
+      const dateStr = cleanDateString(item.date);
+      return dateStr.startsWith(currentYearMonth);
+    });
+
+    if (filteredRecords.length === 0) {
+      workoutList.innerHTML = `<p class="status-msg">${currentDate.getMonth() + 1}월에 저장된 운동 기록이 없습니다.</p>`;
+      return;
+    }
+
+    const grouped = {};
+    filteredRecords.forEach(item => {
+      const dateKey = cleanDateString(item.date);
+      if (!grouped[dateKey]) grouped[dateKey] = [];
+      grouped[dateKey].push(item);
+    });
+
+    const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+
+    sortedDates.forEach(dateStr => {
+      const groupItems = grouped[dateStr];
+      const dateGroupEl = document.createElement('div');
+      dateGroupEl.className = 'date-group';
+
+      let itemsHtml = '';
+      groupItems.forEach(item => {
+        itemsHtml += `
+          <div class="workout-item">
+            <div class="workout-info">
+              <span class="workout-title">${item.type}</span>
+              <span class="workout-detail">${item.detail}</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn-sm btn-edit" onclick="startEdit(${item.rowIndex})">수정</button>
+              <button class="btn-sm btn-del" onclick="deleteRecord(${item.rowIndex})">삭제</button>
+            </div>
+          </div>
+        `;
+      });
+
+      dateGroupEl.innerHTML = `
+        <div class="date-header" onclick="toggleDateGroup(this)">
+          <span>📅 ${dateStr}</span>
+          <span class="badge">${groupItems.length}개 운동</span>
+        </div>
+        <div class="date-body">
+          ${itemsHtml}
+        </div>
+      `;
+
+      workoutList.appendChild(dateGroupEl);
+    });
+  }
+
+  function toggleDateGroup(headerEl) {
+    const parent = headerEl.parentElement;
+    parent.classList.toggle('open');
+  }
+
+  async function deleteRecord(rowIndex) {
+    if (!confirm('이 운동 기록을 삭제하시겠습니까?')) return;
+
+    try {
+      await fetch(`${GAS_URL}?action=delete&rowIndex=${rowIndex}`, { method: 'GET', mode: 'no-cors' });
+      alert('삭제되었습니다.');
+      setTimeout(loadRecords, 1200);
+    } catch (error) {
+      alert('삭제 중 오류가 발생했습니다.');
+    }
+  }
+
+  function startEdit(rowIndex) {
+    const item = currentRecords.find(r => r.rowIndex === rowIndex);
+    if (!item) return;
+
+    editRowIndexInput.value = rowIndex;
+    dateInput.value = cleanDateString(item.date);
+    workoutTypeSelect.value = item.type;
+    detailInput.value = item.detail;
+
+    workoutTypeSelect.dispatchEvent(new Event('change'));
+    saveFormDraft();
+
+    formTitle.textContent = '✏️ 기록 수정하기';
+    submitBtn.textContent = '수정 완료';
+    cancelBtn.style.display = 'block';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cancelBtn.addEventListener('click', resetFormMode);
+
+  function resetFormMode() {
+    editRowIndexInput.value = '';
+    formTitle.textContent = '✍️ 기록 작성하기';
+    submitBtn.textContent = '기록 추가하기';
+    cancelBtn.style.display = 'none';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+    const isEdit = editRowIndexInput.value !== '';
+    submitBtn.textContent = isEdit ? '수정 중...' : '저장 중...';
+
+    const date = dateInput.value;
+    const type = workoutTypeSelect.value;
+    const detail = detailInput.value;
+    const rowIndex = editRowIndexInput.value;
+
+    let sendUrl = isEdit 
+      ? `${GAS_URL}?action=edit&rowIndex=${rowIndex}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`
+      : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
+
+    try {
+      await fetch(sendUrl, { method: 'GET', mode: 'no-cors' });
+      
+      resetFormMode();
+      saveFormDraft();
+      
+      setTimeout(loadRecords, 1200);
+    } catch (error) {
+      alert('저장 중 오류가 발생했습니다.');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // 앱 재방문 시 자동 복원 및 화면 다시 켜짐 감지
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      loadRecords();
+    }
+  });
+
+  updateMonthDisplay();
+  loadFormDraft();
+  loadRecords();
+</script>
+
+</body>
+</html>
