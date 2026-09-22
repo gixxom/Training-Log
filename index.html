@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>운동 기록장</title>
-  
-  <!-- 아이콘 태그 추가 (🏋️‍♂️ 이모지로 아이콘 설정) -->
-  <link rel="apple-touch-icon" href="https://fav.farm/🏋️‍♂️">
-  <link rel="icon" href="https://fav.farm/🏋️‍♂️">
-  
+
+  <!-- iOS 홈 화면 추가 전용 앱 아이콘 (PNG 고화질 이미지) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/2548/2548537.png">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2548/2548537.png">
+  <meta name="apple-mobile-web-app-title" content="운동 기록장">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
     body { background-color: #f4f6f8; color: #333; padding: 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
@@ -146,10 +149,8 @@
   let currentRecords = [];
   let currentDate = new Date();
 
-  // 기본 날짜 설정
   dateInput.valueAsDate = new Date();
 
-  // --- 입력값 브라우저 저장소(localStorage) 자동 유지 기능 ---
   function saveFormDraft() {
     const draft = {
       date: dateInput.value,
@@ -179,7 +180,6 @@
   dateInput.addEventListener('input', saveFormDraft);
   workoutTypeSelect.addEventListener('change', saveFormDraft);
   detailInput.addEventListener('input', saveFormDraft);
-  // ----------------------------------------------------
 
   function updateMonthDisplay() {
     const year = currentDate.getFullYear();
@@ -221,7 +221,6 @@
     }
   });
 
-  // 날짜 보정 로직 (UTC 타임존 오차 보정)
   function cleanDateString(rawDate) {
     if (!rawDate) return '';
     let str = rawDate.toString();
@@ -373,7 +372,7 @@
 
     let sendUrl = isEdit 
       ? `${GAS_URL}?action=edit&rowIndex=${rowIndex}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`
-      : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
+      : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
 
     try {
       await fetch(sendUrl, { method: 'GET', mode: 'no-cors' });
@@ -389,7 +388,6 @@
     }
   });
 
-  // 앱 재방문 시 자동 복원 및 화면 다시 켜짐 감지
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       loadRecords();
