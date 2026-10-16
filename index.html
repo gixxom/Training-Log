@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>운동 기록장</title>
 
-  <!-- 홈 화면 전용 앱 아이콘 -->
+  <!-- 아이폰 홈 화면 전용 앱 아이콘 -->
   <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
   <link rel="icon" type="image/png" href="icon.png">
   <meta name="apple-mobile-web-app-title" content="운동 기록장">
@@ -24,6 +24,18 @@
     label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
     input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 1rem; background-color: #fff; -webkit-appearance: none; }
     input:focus, select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74,144,226,0.2); }
+    
+    /* 분리된 입력 칸 레이아웃 */
+    .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .input-unit-wrapper { position: relative; }
+    .input-unit-wrapper input { padding-right: 36px; text-align: right; font-weight: 600; }
+    .input-unit { position: absolute; right: 8px; top: 14px; font-size: 0.85rem; color: #718096; pointer-events: none; font-weight: 600; }
+
+    /* 최근 기록 불러오기 영역 */
+    .recent-load-box { display: none; background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; align-items: center; justify-content: space-between; }
+    .recent-info { font-size: 0.8rem; color: #2b6cb0; font-weight: 600; }
+    .btn-load { width: auto; height: 32px; padding: 0 10px; font-size: 0.75rem; background-color: #3182ce; margin-top: 0; border-radius: 6px; white-space: nowrap; }
+
     button { width: 100%; height: 50px; background-color: #4a90e2; color: white; border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
     button:disabled { background-color: #a0aec0; cursor: not-allowed; }
     .btn-cancel { background-color: #e53e3e; margin-top: 8px; }
@@ -81,7 +93,7 @@
           <option value="덤벨 벤치프레스" data-category="dumbbell">덤벨 벤치프레스</option>
           <option value="덤벨숄더프레스" data-category="dumbbell">덤벨숄더프레스</option>
           <option value="덤벨컬" data-category="dumbbell">덤벨컬</option>
-          <option value="렛풀다운" data-category="machine">렛풀다운</option>
+          <option value="렛풀다운" data-category="pin">렛풀다운</option>
           <option value="레그 프레스" data-category="machine">레그 프레스</option>
           <option value="바벨로우" data-category="barbell">바벨로우</option>
           <option value="벤트오버 레터럴 레이즈" data-category="dumbbell">벤트오버 레터럴 레이즈</option>
@@ -95,18 +107,42 @@
           <option value="오버헤드 익스텐션" data-category="dumbbell">오버헤드 익스텐션</option>
           <option value="원 암 덤벨로우" data-category="dumbbell">원 암 덤벨로우</option>
           <option value="인클라인 덤벨 벤치프레스" data-category="dumbbell">인클라인 덤벨 벤치프레스</option>
-          <option value="케이블 암풀다운" data-category="machine">케이블 암풀다운</option>
-          <option value="케이블 푸쉬다운" data-category="machine">케이블 푸쉬다운</option>
+          <option value="체스트 플라이" data-category="pin">체스트 플라이</option>
+          <option value="케이블 암풀다운" data-category="pin">케이블 암풀다운</option>
+          <option value="케이블 푸쉬다운" data-category="pin">케이블 푸쉬다운</option>
           <option value="턱걸이" data-category="bodyweight">턱걸이</option>
           <option value="해머컬" data-category="dumbbell">해머컬</option>
           <option value="행잉레그레이즈" data-category="bodyweight">행잉레그레이즈</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="detail" id="detailLabel">운동량 (세트/세부사항)</label>
-        <input type="text" id="detail" placeholder="운동을 먼저 선택해주세요" required>
+      <!-- 최근 기록 불러오기 알림 영역 -->
+      <div class="recent-load-box" id="recentLoadBox">
+        <div class="recent-info">
+          <span>최근 기록: <strong id="recentDetailText">-</strong></span>
+        </div>
+        <button type="button" class="btn-load" id="btnLoadRecent">⚡ 불러오기</button>
       </div>
+
+      <!-- 수동 입력 영역 (무게 또는 핀 번호 / 횟수 / 세트) -->
+      <div class="form-group">
+        <label id="detailLabel">운동량 (수동 입력)</label>
+        <div class="input-grid">
+          <div class="input-unit-wrapper">
+            <input type="number" id="weightInput" step="any" placeholder="0" inputmode="decimal">
+            <span class="input-unit" id="weightUnit">kg</span>
+          </div>
+          <div class="input-unit-wrapper">
+            <input type="number" id="repsInput" pattern="\d*" placeholder="0" inputmode="numeric">
+            <span class="input-unit">회</span>
+          </div>
+          <div class="input-unit-wrapper">
+            <input type="number" id="setsInput" pattern="\d*" placeholder="0" inputmode="numeric">
+            <span class="input-unit">세트</span>
+          </div>
+        </div>
+      </div>
+
       <button type="submit" id="submitBtn">기록 추가하기</button>
       <button type="button" id="cancelBtn" class="btn-cancel" style="display: none;">수정 취소</button>
     </form>
@@ -137,7 +173,16 @@
   const cancelBtn = document.getElementById('cancelBtn');
   const dateInput = document.getElementById('date');
   const workoutTypeSelect = document.getElementById('workoutType');
-  const detailInput = document.getElementById('detail');
+  
+  const weightInput = document.getElementById('weightInput');
+  const repsInput = document.getElementById('repsInput');
+  const setsInput = document.getElementById('setsInput');
+  const weightUnit = document.getElementById('weightUnit');
+  
+  const recentLoadBox = document.getElementById('recentLoadBox');
+  const recentDetailText = document.getElementById('recentDetailText');
+  const btnLoadRecent = document.getElementById('btnLoadRecent');
+
   const detailLabel = document.getElementById('detailLabel');
   const formTitle = document.getElementById('formTitle');
   const editRowIndexInput = document.getElementById('editRowIndex');
@@ -148,8 +193,9 @@
 
   let currentRecords = [];
   let currentDate = new Date();
+  let isSubmitting = false;
+  let tempRecentData = null;
 
-  // 오늘 날짜 기본 세팅 (YYYY-MM-DD 형식)
   function getTodayString() {
     const today = new Date();
     const year = today.getFullYear();
@@ -164,7 +210,9 @@
     const draft = {
       date: dateInput.value,
       type: workoutTypeSelect.value,
-      detail: detailInput.value
+      weight: weightInput.value,
+      reps: repsInput.value,
+      sets: setsInput.value
     };
     localStorage.setItem('workout_form_draft', JSON.stringify(draft));
   }
@@ -179,7 +227,9 @@
           workoutTypeSelect.value = draft.type;
           workoutTypeSelect.dispatchEvent(new Event('change'));
         }
-        if (draft.detail) detailInput.value = draft.detail;
+        if (draft.weight !== undefined) weightInput.value = draft.weight;
+        if (draft.reps !== undefined) repsInput.value = draft.reps;
+        if (draft.sets !== undefined) setsInput.value = draft.sets;
       } catch (e) {
         console.error('Draft load error:', e);
       }
@@ -188,7 +238,9 @@
 
   dateInput.addEventListener('input', saveFormDraft);
   workoutTypeSelect.addEventListener('change', saveFormDraft);
-  detailInput.addEventListener('input', saveFormDraft);
+  weightInput.addEventListener('input', saveFormDraft);
+  repsInput.addEventListener('input', saveFormDraft);
+  setsInput.addEventListener('input', saveFormDraft);
 
   function updateMonthDisplay() {
     const year = currentDate.getFullYear();
@@ -208,29 +260,67 @@
     renderRecords();
   });
 
+  // 운동 선택 시 카테고리별 단위 동적 변경 (kg 또는 핀)
   workoutTypeSelect.addEventListener('change', (e) => {
+    const selectedType = e.target.value;
     const selectedOption = e.target.options[e.target.selectedIndex];
     const category = selectedOption ? selectedOption.getAttribute('data-category') : null;
 
     if (category === 'dumbbell') {
-      detailLabel.textContent = '운동량 (한쪽 덤벨 무게 기준)';
-      detailInput.placeholder = '예: 12kg 10회 3세트';
+      detailLabel.textContent = '운동량 (한쪽 덤벨 무게)';
+      weightUnit.textContent = 'kg';
     } else if (category === 'barbell') {
-      detailLabel.textContent = '운동량 (양쪽 원판 무게 기준, 봉 제외)';
-      detailInput.placeholder = '예: 40kg(원판합) 8회 4세트';
+      detailLabel.textContent = '운동량 (양쪽 원판합, 봉제외)';
+      weightUnit.textContent = 'kg';
     } else if (category === 'machine') {
-      detailLabel.textContent = '운동량 (머신 무게/핀 수치 기준)';
-      detailInput.placeholder = '예: 45kg(or 7번 핀) 12회 3세트';
+      detailLabel.textContent = '운동량 (머신 무게)';
+      weightUnit.textContent = 'kg';
+    } else if (category === 'pin') {
+      detailLabel.textContent = '운동량 (핀 꽂는 번호)';
+      weightUnit.textContent = '핀';
     } else if (category === 'cardio') {
-      detailLabel.textContent = '운동량 (강도/거리)';
-      detailInput.placeholder = '예: 강도 5 / 10km';
+      detailLabel.textContent = '운동량 (강도/속도)';
+      weightUnit.textContent = '강도';
     } else if (category === 'bodyweight') {
-      detailLabel.textContent = '운동량 (횟수/세트)';
-      detailInput.placeholder = '예: 20회 4세트';
+      detailLabel.textContent = '운동량 (맨몸/자체)';
+      weightUnit.textContent = 'kg';
     }
+
+    checkRecentRecord(selectedType);
   });
 
-  // 날짜 문자열 정제 (시차 오류 방지)
+  function checkRecentRecord(workoutType) {
+    if (!workoutType || currentRecords.length === 0) {
+      recentLoadBox.style.display = 'none';
+      return;
+    }
+
+    const match = currentRecords.find(item => item.type === workoutType);
+    if (match && match.detail) {
+      tempRecentData = match.detail;
+      recentDetailText.textContent = match.detail;
+      recentLoadBox.style.display = 'flex';
+    } else {
+      recentLoadBox.style.display = 'none';
+      tempRecentData = null;
+    }
+  }
+
+  // 최근 기록 불러오기 (kg 또는 핀 번호 자동 파싱)
+  btnLoadRecent.addEventListener('click', () => {
+    if (!tempRecentData) return;
+
+    const wMatch = tempRecentData.match(/([\d.]+)\s*(kg|핀|강도)/);
+    const rMatch = tempRecentData.match(/(\d+)\s*회/);
+    const sMatch = tempRecentData.match(/(\d+)\s*세트/);
+
+    if (wMatch) weightInput.value = wMatch[1];
+    if (rMatch) repsInput.value = rMatch[1];
+    if (sMatch) setsInput.value = sMatch[1];
+
+    saveFormDraft();
+  });
+
   function cleanDateString(rawDate) {
     if (!rawDate) return '';
     let str = rawDate.toString();
@@ -256,6 +346,10 @@
       const response = await fetch(GAS_URL);
       currentRecords = await response.json();
       renderRecords();
+
+      if (workoutTypeSelect.value) {
+        checkRecentRecord(workoutTypeSelect.value);
+      }
     } catch (error) {
       console.error('Error:', error);
       if (currentRecords.length === 0) {
@@ -295,7 +389,6 @@
 
       let itemsHtml = '';
       groupItems.forEach(item => {
-        // 운동 종류(type)가 없을 경우 처리
         const workoutName = item.type || '운동 이름 없음';
         
         itemsHtml += `
@@ -350,7 +443,16 @@
     editRowIndexInput.value = rowIndex;
     dateInput.value = cleanDateString(item.date);
     workoutTypeSelect.value = item.type || '';
-    detailInput.value = item.detail || '';
+    
+    if (item.detail) {
+      const wMatch = item.detail.match(/([\d.]+)\s*(kg|핀|강도)/);
+      const rMatch = item.detail.match(/(\d+)\s*회/);
+      const sMatch = item.detail.match(/(\d+)\s*세트/);
+
+      weightInput.value = wMatch ? wMatch[1] : '';
+      repsInput.value = rMatch ? rMatch[1] : '';
+      setsInput.value = sMatch ? sMatch[1] : '';
+    }
 
     workoutTypeSelect.dispatchEvent(new Event('change'));
     saveFormDraft();
@@ -374,16 +476,25 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
+
+    isSubmitting = true;
     submitBtn.disabled = true;
+
     const isEdit = editRowIndexInput.value !== '';
     submitBtn.textContent = isEdit ? '수정 중...' : '저장 중...';
 
     const date = dateInput.value;
     const type = workoutTypeSelect.value;
-    const detail = detailInput.value;
     const rowIndex = editRowIndexInput.value;
 
-    // 🔥 URL 주소 전송 오타 수정 (&type= 중복 제거)
+    // 현재 선택된 단위(kg 또는 핀 등)를 조합하여 저장
+    const wVal = weightInput.value ? `${weightInput.value}${weightUnit.textContent}` : '';
+    const rVal = repsInput.value ? `${repsInput.value}회` : '';
+    const sVal = setsInput.value ? `${setsInput.value}세트` : '';
+    
+    const detail = [wVal, rVal, sVal].filter(Boolean).join(' ');
+
     let sendUrl = isEdit 
       ? `${GAS_URL}?action=edit&rowIndex=${rowIndex}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`
       : `${GAS_URL}?action=add&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&detail=${encodeURIComponent(detail)}`;
@@ -392,17 +503,13 @@
       await fetch(sendUrl, { method: 'GET', mode: 'no-cors' });
       
       resetFormMode();
-      
-      // 작성 성공 시 저장용 임시 데이터 지우고 오늘 날짜 재설정
-      localStorage.removeItem('workout_form_draft');
-      dateInput.value = getTodayString();
-      workoutTypeSelect.value = '';
-      detailInput.value = '';
+      saveFormDraft();
       
       setTimeout(loadRecords, 1200);
     } catch (error) {
       alert('저장 중 오류가 발생했습니다.');
     } finally {
+      isSubmitting = false;
       submitBtn.disabled = false;
     }
   });
