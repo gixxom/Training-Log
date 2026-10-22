@@ -124,7 +124,7 @@
         <button type="button" class="btn-load" id="btnLoadRecent">⚡ 불러오기</button>
       </div>
 
-      <!-- 수동 입력 영역 (무게 또는 핀 번호 / 횟수 / 세트) -->
+      <!-- 수동 입력 영역 -->
       <div class="form-group">
         <label id="detailLabel">운동량 (수동 입력)</label>
         <div class="input-grid">
@@ -204,11 +204,12 @@
     return `${year}-${month}-${day}`;
   }
 
+  // 항상 오늘 날짜로 초기 세팅
   dateInput.value = getTodayString();
 
   function saveFormDraft() {
     const draft = {
-      date: dateInput.value,
+      date: dateInput.value, // 날짜도 저장되지만 로드시 덮어씌움
       type: workoutTypeSelect.value,
       weight: weightInput.value,
       reps: repsInput.value,
@@ -222,7 +223,7 @@
     if (saved) {
       try {
         const draft = JSON.parse(saved);
-        if (draft.date) dateInput.value = draft.date;
+        // 날짜는 이전 날짜를 불러오지 않고 항상 오늘 날짜 유지!
         if (draft.type) {
           workoutTypeSelect.value = draft.type;
           workoutTypeSelect.dispatchEvent(new Event('change'));
@@ -260,7 +261,6 @@
     renderRecords();
   });
 
-  // 운동 선택 시 카테고리별 단위 동적 변경 (kg 또는 핀)
   workoutTypeSelect.addEventListener('change', (e) => {
     const selectedType = e.target.value;
     const selectedOption = e.target.options[e.target.selectedIndex];
@@ -306,7 +306,6 @@
     }
   }
 
-  // 최근 기록 불러오기 (kg 또는 핀 번호 자동 파싱)
   btnLoadRecent.addEventListener('click', () => {
     if (!tempRecentData) return;
 
@@ -488,7 +487,6 @@
     const type = workoutTypeSelect.value;
     const rowIndex = editRowIndexInput.value;
 
-    // 현재 선택된 단위(kg 또는 핀 등)를 조합하여 저장
     const wVal = weightInput.value ? `${weightInput.value}${weightUnit.textContent}` : '';
     const rVal = repsInput.value ? `${repsInput.value}회` : '';
     const sVal = setsInput.value ? `${setsInput.value}세트` : '';
@@ -504,6 +502,9 @@
       
       resetFormMode();
       saveFormDraft();
+      
+      // 저장 성공 후에도 날짜는 항상 오늘 날짜로 유지
+      dateInput.value = getTodayString();
       
       setTimeout(loadRecords, 1200);
     } catch (error) {
