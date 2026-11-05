@@ -13,15 +13,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
-    /* 라이트 모드 컬러 */
+    /* 라이트 모드 기본 컬러 */
     :root {
-      --bg-color: #f4f6f8;
-      --card-bg: #ffffff;
-      --text-main: #333333;
-      --text-sub: #4a5568;
-      --border-color: #cbd5e0;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --ink: #333333;
+      --sub: #4a5568;
+      --line: #cbd5e0;
+      --accent: #3182ce;
+      --accent-ink: #ffffff;
+      --danger: #e53e3e;
       --input-bg: #ffffff;
-      --input-text: #333333;
       --header-bg: #f8fafc;
       --header-text: #2b6cb0;
       --badge-bg: #3182ce;
@@ -36,64 +38,76 @@
       --recent-text: #2b6cb0;
     }
 
-    /* 다크 모드 (보내주신 차계부 앱과 동일한 딥 네이비 톤 적용) */
+    /* 다크 모드 (요청하신 차계부 스타일 딥 네이비 팔레트 적용) */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #0b1329;       /* 딥 네이비 배경 */
-        --card-bg: #131d38;       /* 카드 박스: 부드러운 다크 네이비 */
-        --text-main: #f1f5f9;     /* 메인 글자 */
-        --text-sub: #94a3b8;      /* 서브 글자 */
-        --border-color: #233254;   /* 세련된 테두리선 */
-        --input-bg: #1a2747;      /* 인풋창 배경 */
-        --input-text: #ffffff;    /* 인풋창 글자 */
-        --header-bg: #1a2747;     /* 아코디언 헤더 */
-        --header-text: #38bdf8;   /* 포인트 컬러 (하늘빛) */
-        --badge-bg: #0284c7;      --item-bg: #182241;       --item-border: #2c3e6b;   --item-title: #f1f5f9;    --item-detail: #c084fc;   --month-box: #1a2747;     --month-text: #f1f5f9;    --recent-bg: #102447;     --recent-border: #1e3a8a; --recent-text: #38bdf8;   }
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --ink: #f8fafc;
+        --sub: #94a3b8;
+        --line: #334155;
+        --accent: #3b82f6;
+        --accent-ink: #ffffff;
+        --danger: #f87171;
+        --input-bg: #0f172a;
+        --header-bg: #1e293b;
+        --header-text: #38bdf8;
+        --badge-bg: #2563eb;
+        --item-bg: #152238;
+        --item-border: #334155;
+        --item-title: #f8fafc;
+        --item-detail: #c084fc;
+        --month-box: #1e293b;
+        --month-text: #f8fafc;
+        --recent-bg: #172554;
+        --recent-border: #1e40af;
+        --recent-text: #60a5fa;
+      }
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
     
-    /* 상단바 여유 공간 확보 (가림 현상 방지) */
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 36px 12px 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
+    /* 📱 상단바에 가리지 않도록 상단 여백을 44px로 넉넉하게 주어 아래로 살짝 내렸습니다 */
+    body { background-color: var(--bg); color: var(--ink); padding: 44px 12px 20px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
     
-    .header-title { text-align: center; margin-bottom: 20px; color: var(--text-main); }
+    .header-title { text-align: center; margin-bottom: 20px; color: var(--ink); }
     .header-title h1 { font-size: 1.4rem; font-weight: 700; }
     .app-layout { display: flex; flex-direction: column; gap: 16px; max-width: 480px; margin: 0 auto; }
-    .card { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-    .card h2 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid var(--border-color); }
+    .card { background: var(--surface); padding: 18px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: background 0.3s; }
+    .card h2 { font-size: 1.1rem; color: var(--ink); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid var(--line); }
     .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); }
-    input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; background-color: var(--input-bg); color: var(--input-text); -webkit-appearance: none; }
-    input:focus, select:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56,189,248,0.25); }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--sub); }
+    input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 1rem; background-color: var(--input-bg); color: var(--ink); -webkit-appearance: none; }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
     
     /* 분리된 입력 칸 레이아웃 */
     .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .input-unit-wrapper { position: relative; }
     .input-unit-wrapper input { padding-right: 36px; text-align: right; font-weight: 600; }
-    .input-unit { position: absolute; right: 8px; top: 14px; font-size: 0.85rem; color: var(--text-sub); pointer-events: none; font-weight: 600; }
+    .input-unit { position: absolute; right: 8px; top: 14px; font-size: 0.85rem; color: var(--sub); pointer-events: none; font-weight: 600; }
 
     /* 최근 기록 불러오기 영역 */
     .recent-load-box { display: none; background: var(--recent-bg); border: 1px solid var(--recent-border); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; align-items: center; justify-content: space-between; }
     .recent-info { font-size: 0.8rem; color: var(--recent-text); font-weight: 600; }
-    .btn-load { width: auto; height: 32px; padding: 0 10px; font-size: 0.75rem; background-color: #0284c7; color: #fff; margin-top: 0; border-radius: 6px; white-space: nowrap; border: none; cursor: pointer; }
+    .btn-load { width: auto; height: 32px; padding: 0 10px; font-size: 0.75rem; background-color: var(--accent); color: var(--accent-ink); margin-top: 0; border-radius: 6px; white-space: nowrap; border: none; cursor: pointer; }
 
-    button { width: 100%; height: 50px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
-    button:disabled { background-color: #475569; cursor: not-allowed; }
-    .btn-cancel { background-color: #dc2626; margin-top: 8px; }
+    button { width: 100%; height: 50px; background-color: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
+    button:disabled { background-color: var(--line); cursor: not-allowed; }
+    .btn-cancel { background-color: var(--danger); margin-top: 8px; }
 
     /* 월 이동 컨트롤 */
     .month-picker-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: var(--month-box); padding: 8px 12px; border-radius: 8px; }
-    .month-picker-container button { width: auto; height: 32px; padding: 0 10px; font-size: 0.85rem; margin: 0; background-color: #334155; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+    .month-picker-container button { width: auto; height: 32px; padding: 0 10px; font-size: 0.85rem; margin: 0; background-color: var(--line); color: var(--ink); border: none; border-radius: 6px; cursor: pointer; }
     .month-display { font-size: 1rem; font-weight: 700; color: var(--month-text); }
 
     /* 날짜별 아코디언 그룹 */
     .record-list-container { max-height: 480px; overflow-y: auto; padding-right: 2px; }
-    .date-group { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: var(--card-bg); }
+    .date-group { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: var(--surface); }
     .date-header { background: var(--header-bg); padding: 12px 14px; font-weight: 700; font-size: 0.95rem; color: var(--header-text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; }
-    .date-group.open .date-header { border-bottom-color: var(--border-color); }
+    .date-group.open .date-header { border-bottom-color: var(--line); }
     .badge { background: var(--badge-bg); color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
     
-    .date-body { display: none; padding: 10px; background: var(--card-bg); }
+    .date-body { display: none; padding: 10px; background: var(--surface); }
     .date-group.open .date-body { display: block; }
     
     .workout-item { background: var(--item-bg); border: 1px solid var(--item-border); padding: 10px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
@@ -105,8 +119,8 @@
     .btn-group { display: flex; gap: 6px; align-items: center; }
     .btn-sm { width: auto; height: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; margin-top: 0; border: none; color: #fff; cursor: pointer; }
     .btn-edit { background-color: #d97706; }
-    .btn-del { background-color: #dc2626; }
-    .status-msg { text-align: center; color: var(--text-sub); font-size: 0.85rem; padding: 24px 0; }
+    .btn-del { background-color: var(--danger); }
+    .status-msg { text-align: center; color: var(--sub); font-size: 0.85rem; padding: 24px 0; }
   </style>
 </head>
 <body>
