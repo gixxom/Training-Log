@@ -13,59 +13,106 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <style>
+    /* 다크 모드 / 라이트 모드 색상 변수 설정 */
+    :root {
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-sub: #4a5568;
+      --border-color: #cbd5e0;
+      --input-bg: #ffffff;
+      --input-text: #333333;
+      --header-bg: #f8fafc;
+      --header-text: #2b6cb0;
+      --badge-bg: #3182ce;
+      --item-bg: #faf5ff;
+      --item-border: #e9d8fd;
+      --item-title: #2d3748;
+      --item-detail: #6b46c1;
+      --month-box: #edf2f7;
+      --month-text: #2d3748;
+      --recent-bg: #ebf8ff;
+      --recent-border: #bee3f8;
+      --recent-text: #2b6cb0;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-main: #e0e0e0;
+        --text-sub: #a0aec0;
+        --border-color: #4a5568;
+        --input-bg: #2d2d2d;
+        --input-text: #ffffff;
+        --header-bg: #2a2a2a;
+        --header-text: #63b3ed;
+        --badge-bg: #2b6cb0;
+        --item-bg: #251f30;
+        --item-border: #44337a;
+        --item-title: #e2e8f0;
+        --item-detail: #b794f4;
+        --month-box: #2a2a2a;
+        --month-text: #e2e8f0;
+        --recent-bg: #1a365d;
+        --recent-border: #2c5282;
+        --recent-text: #90cdf4;
+      }
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
-    body { background-color: #f4f6f8; color: #333; padding: 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
-    .header-title { text-align: center; margin-bottom: 16px; color: #1a252c; }
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; }
+    .header-title { text-align: center; margin-bottom: 16px; color: var(--text-main); }
     .header-title h1 { font-size: 1.4rem; font-weight: 700; }
     .app-layout { display: flex; flex-direction: column; gap: 16px; max-width: 480px; margin: 0 auto; }
-    .card { background: #ffffff; padding: 18px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .card h2 { font-size: 1.1rem; color: #2c3e50; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid #edf2f7; }
+    .card { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: background 0.3s; }
+    .card h2 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1.5px solid var(--border-color); }
     .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #4a5568; }
-    input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 1rem; background-color: #fff; -webkit-appearance: none; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); }
+    input, select { width: 100%; height: 48px; padding: 0 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; background-color: var(--input-bg); color: var(--input-text); -webkit-appearance: none; }
     input:focus, select:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 0 2px rgba(74,144,226,0.2); }
     
     /* 분리된 입력 칸 레이아웃 */
     .input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .input-unit-wrapper { position: relative; }
     .input-unit-wrapper input { padding-right: 36px; text-align: right; font-weight: 600; }
-    .input-unit { position: absolute; right: 8px; top: 14px; font-size: 0.85rem; color: #718096; pointer-events: none; font-weight: 600; }
+    .input-unit { position: absolute; right: 8px; top: 14px; font-size: 0.85rem; color: var(--text-sub); pointer-events: none; font-weight: 600; }
 
     /* 최근 기록 불러오기 영역 */
-    .recent-load-box { display: none; background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; align-items: center; justify-content: space-between; }
-    .recent-info { font-size: 0.8rem; color: #2b6cb0; font-weight: 600; }
-    .btn-load { width: auto; height: 32px; padding: 0 10px; font-size: 0.75rem; background-color: #3182ce; margin-top: 0; border-radius: 6px; white-space: nowrap; }
+    .recent-load-box { display: none; background: var(--recent-bg); border: 1px solid var(--recent-border); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; align-items: center; justify-content: space-between; }
+    .recent-info { font-size: 0.8rem; color: var(--recent-text); font-weight: 600; }
+    .btn-load { width: auto; height: 32px; padding: 0 10px; font-size: 0.75rem; background-color: #3182ce; color: #fff; margin-top: 0; border-radius: 6px; white-space: nowrap; border: none; cursor: pointer; }
 
     button { width: 100%; height: 50px; background-color: #4a90e2; color: white; border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; }
     button:disabled { background-color: #a0aec0; cursor: not-allowed; }
     .btn-cancel { background-color: #e53e3e; margin-top: 8px; }
 
     /* 월 이동 컨트롤 */
-    .month-picker-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #edf2f7; padding: 8px 12px; border-radius: 8px; }
-    .month-picker-container button { width: auto; height: 32px; padding: 0 10px; font-size: 0.85rem; margin: 0; background-color: #718096; }
-    .month-display { font-size: 1rem; font-weight: 700; color: #2d3748; }
+    .month-picker-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: var(--month-box); padding: 8px 12px; border-radius: 8px; }
+    .month-picker-container button { width: auto; height: 32px; padding: 0 10px; font-size: 0.85rem; margin: 0; background-color: #718096; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+    .month-display { font-size: 1rem; font-weight: 700; color: var(--month-text); }
 
     /* 날짜별 아코디언 그룹 */
     .record-list-container { max-height: 480px; overflow-y: auto; padding-right: 2px; }
-    .date-group { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: #fff; }
-    .date-header { background: #f8fafc; padding: 12px 14px; font-weight: 700; font-size: 0.95rem; color: #2b6cb0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; }
-    .date-group.open .date-header { border-bottom-color: #e2e8f0; background: #ebf8ff; }
-    .badge { background: #3182ce; color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+    .date-group { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; background: var(--card-bg); }
+    .date-header { background: var(--header-bg); padding: 12px 14px; font-weight: 700; font-size: 0.95rem; color: var(--header-text); display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 1px solid transparent; }
+    .date-group.open .date-header { border-bottom-color: var(--border-color); }
+    .badge { background: var(--badge-bg); color: #fff; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
     
-    .date-body { display: none; padding: 10px; background: #fff; }
+    .date-body { display: none; padding: 10px; background: var(--card-bg); }
     .date-group.open .date-body { display: block; }
     
-    .workout-item { background: #faf5ff; border: 1px solid #e9d8fd; padding: 10px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .workout-item { background: var(--item-bg); border: 1px solid var(--item-border); padding: 10px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
     .workout-item:last-child { margin-bottom: 0; }
     .workout-info { display: flex; flex-direction: column; gap: 2px; }
-    .workout-title { font-weight: 700; font-size: 0.95rem; color: #2d3748; }
-    .workout-detail { font-size: 0.85rem; color: #6b46c1; font-weight: 600; }
+    .workout-title { font-weight: 700; font-size: 0.95rem; color: var(--item-title); }
+    .workout-detail { font-size: 0.85rem; color: var(--item-detail); font-weight: 600; }
     
     .btn-group { display: flex; gap: 6px; align-items: center; }
-    .btn-sm { width: auto; height: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; margin-top: 0; }
+    .btn-sm { width: auto; height: 30px; padding: 0 8px; font-size: 0.75rem; font-weight: 600; border-radius: 6px; margin-top: 0; border: none; color: #fff; cursor: pointer; }
     .btn-edit { background-color: #ed8936; }
     .btn-del { background-color: #e53e3e; }
-    .status-msg { text-align: center; color: #a0aec0; font-size: 0.85rem; padding: 24px 0; }
+    .status-msg { text-align: center; color: var(--text-sub); font-size: 0.85rem; padding: 24px 0; }
   </style>
 </head>
 <body>
@@ -204,12 +251,10 @@
     return `${year}-${month}-${day}`;
   }
 
-  // 항상 오늘 날짜로 초기 세팅
   dateInput.value = getTodayString();
 
   function saveFormDraft() {
     const draft = {
-      date: dateInput.value, // 날짜도 저장되지만 로드시 덮어씌움
       type: workoutTypeSelect.value,
       weight: weightInput.value,
       reps: repsInput.value,
@@ -223,7 +268,6 @@
     if (saved) {
       try {
         const draft = JSON.parse(saved);
-        // 날짜는 이전 날짜를 불러오지 않고 항상 오늘 날짜 유지!
         if (draft.type) {
           workoutTypeSelect.value = draft.type;
           workoutTypeSelect.dispatchEvent(new Event('change'));
@@ -373,7 +417,7 @@
     }
 
     const grouped = {};
-    filteredRecords.forEach(item => {
+    filteredRecords.filter(item => item.date).forEach(item => {
       const dateKey = cleanDateString(item.date);
       if (!grouped[dateKey]) grouped[dateKey] = [];
       grouped[dateKey].push(item);
@@ -502,8 +546,6 @@
       
       resetFormMode();
       saveFormDraft();
-      
-      // 저장 성공 후에도 날짜는 항상 오늘 날짜로 유지
       dateInput.value = getTodayString();
       
       setTimeout(loadRecords, 1200);
