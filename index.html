@@ -36,23 +36,37 @@
       --recent-text: #2b6cb0;
     }
 
-    /* 다크 모드 (보내주신 참고 이미지의 세련된 네이비/다크 블루 톤 적용) */
+    /* 다크 모드 (세련된 네이비 톤) */
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg-color: #0b1329;       /* 배경: 딥 네이비 */
-        --card-bg: #111d3b;       /* 카드 박스: 감성적인 다크 네이비 */
-        --text-main: #f1f5f9;     /* 메인 글자: 밝은 화이트 톤 */
-        --text-sub: #94a3b8;      --border-color: #273555;   /* 테두리선 */
-        --input-bg: #18264a;      /* 인풋창 배경 */
-        --input-text: #ffffff;    /* 인풋창 글자 */
-        --header-bg: #172544;     /* 아코디언 헤더 */
-        --header-text: #38bdf8;   /* 아코디언 타이틀 포인트 */
-        --badge-bg: #0284c7;      --item-bg: #181d32;       --item-border: #313c61;   --item-title: #f1f5f9;    --item-detail: #c084fc;   --month-box: #172544;     --month-text: #f1f5f9;    --recent-bg: #0c2340;     --recent-border: #1e3a8a; --recent-text: #38bdf8;   }
+        --bg-color: #0b1329;
+        --card-bg: #111d3b;
+        --text-main: #f1f5f9;
+        --text-sub: #94a3b8;
+        --border-color: #273555;
+        --input-bg: #18264a;
+        --input-text: #ffffff;
+        --header-bg: #172544;
+        --header-text: #38bdf8;
+        --badge-bg: #0284c7;
+        --item-bg: #181d32;
+        --item-border: #313c61;
+        --item-title: #f1f5f9;
+        --item-detail: #c084fc;
+        --month-box: #172544;
+        --month-text: #f1f5f9;
+        --recent-bg: #0c2340;
+        --recent-border: #1e3a8a;
+        --recent-text: #38bdf8;
+      }
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
-    .header-title { text-align: center; margin-bottom: 16px; color: var(--text-main); }
+    
+    /* 📱 상단바에 가리지 않도록 바디 상단 여백(padding-top)을 넉넉하게 수정했습니다 */
+    body { background-color: var(--bg-color); color: var(--text-main); padding: 32px 12px 16px 12px; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+    
+    .header-title { text-align: center; margin-bottom: 20px; color: var(--text-main); }
     .header-title h1 { font-size: 1.4rem; font-weight: 700; }
     .app-layout { display: flex; flex-direction: column; gap: 16px; max-width: 480px; margin: 0 auto; }
     .card { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
